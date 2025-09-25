@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View, FlatList, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, FlatList, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 
 interface Game {
@@ -16,6 +17,7 @@ interface Game {
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,7 +41,13 @@ export default function HomeScreen() {
   };
 
   const renderGame = ({ item }: { item: Game }) => (
-    <View style={styles.gameCard}>
+    <TouchableOpacity 
+      style={styles.gameCard}
+      onPress={() => {
+        console.log('Tapped on game:', item.name, 'ID:', item.id);
+        router.push(`/game/${item.id}`);
+      }}
+    >
       <Text style={styles.gameName}>{item.name}</Text>
       <Text style={styles.gameDescription}>{item.description}</Text>
       <View style={styles.gameInfo}>
@@ -47,7 +55,10 @@ export default function HomeScreen() {
         <Text>⏱️ {item.play_time} min</Text>
         {item.year_published && <Text>📅 {item.year_published}</Text>}
       </View>
-    </View>
+      <View style={styles.ratingContainer}>
+        <Text style={styles.rating}>⭐ {item.avg_rating.toFixed(1)}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   if (loading) {
@@ -122,5 +133,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
+    marginBottom: 8,
+  },
+  ratingContainer: {
+    alignItems: 'flex-end',
+  },
+  rating: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FF6B35',
   },
 });
